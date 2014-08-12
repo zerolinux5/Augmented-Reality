@@ -133,6 +133,22 @@ static inline void drawTargetCircle(CGPoint center,
     else if ( dist < kRadius2 ) { bestRing = 2; }
     else if ( dist < kRadius1 ) { bestRing = 1; }
     
+    #if kDRAW_TARGET_BULLET_HOLES
+        if ( bestRing > 0 ) {
+            // (1) Create the UIView for the "bullet hole"
+            CGFloat bulletSize = 6.0f;
+            UIView * bulletHole = [[UIView alloc] initWithFrame:CGRectMake(point.x - bulletSize/2.0f,
+                                                                       point.y - bulletSize/2.0f,
+                                                                       bulletSize,
+                                                                       bulletSize)];
+            bulletHole.backgroundColor = kColorBulletHole;
+            [self addSubview:bulletHole];
+        
+            // (2) Keep track of state, so it can be cleared
+            [self.hits addObject:bulletHole];
+        }
+    #endif
+    
     return bestRing;
 }
 
@@ -144,6 +160,13 @@ static inline void drawTargetCircle(CGPoint center,
 
 - (void)hide {
     self.alpha = kAlphaHide;
+    
+#if kDRAW_TARGET_BULLET_HOLES
+    for ( UIView * v in self.hits ) {
+        [v removeFromSuperview];
+    }
+    [self.hits removeAllObjects];
+#endif
 }
 
 @end
