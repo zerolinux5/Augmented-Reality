@@ -234,7 +234,11 @@
 }
 
 - (void)updateSample:(NSTimer*)timer {
-    // TODO: Add code here
+    self.sampleView.image = [UIImage fromCVMat:m_detector->sampleImage()];
+    self.sampleLabel1.text = [NSString stringWithFormat:@"%0.3f",
+                              m_detector->matchThresholdValue()];
+    self.sampleLabel2.text = [NSString stringWithFormat:@"%0.3f",
+                              m_detector->matchValue()];
 }
 
 - (void)togglePanels {

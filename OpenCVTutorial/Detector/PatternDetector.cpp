@@ -74,6 +74,16 @@ void PatternDetector::scanFrame(VideoFrame frame)
             m_matchValue = maxVal;
             break;
     }
+    
+    #if kUSE_TRACKING_HELPER
+        // (1) copy image
+        cv::Mat debugImage;
+        queryImageGrayScale.copyTo(debugImage);
+        // (2) overlay rectangle
+        cv::rectangle(debugImage, m_matchPoint, cv::Point(m_matchPoint.x + m_patternImageGrayScaled.cols,m_matchPoint.y + m_patternImageGrayScaled.rows), CV_RGB(0, 0, 0), 3);
+        // (3) save to member variable
+        debugImage.copyTo(m_sampleImage);
+    #endif
 }
 
 const cv::Point& PatternDetector::matchPoint()
@@ -102,4 +112,7 @@ bool PatternDetector::isTracking()
     }
 }
 
-// TODO: Add code here
+const cv::Mat& PatternDetector::sampleImage()
+{
+    return m_sampleImage;
+}

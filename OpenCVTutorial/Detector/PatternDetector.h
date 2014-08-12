@@ -24,6 +24,7 @@ public:
     
     // (3) Match APIs
     const cv::Point& matchPoint();
+    const cv::Mat& sampleImage();
     float matchValue();
     float matchThresholdValue();
     
@@ -37,6 +38,7 @@ private:
     cv::Mat m_patternImage;
     cv::Mat m_patternImageGray;
     cv::Mat m_patternImageGrayScaled;
+    cv::Mat m_sampleImage;
     
     // (6) Supporting Members
     cv::Point m_matchPoint;
