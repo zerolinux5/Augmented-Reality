@@ -98,6 +98,24 @@
         [_weakSelf setTransitioningTracker:NO];
         [_weakSelf setScore:0];
     };
+    
+    // Numerical estimates for camera calibration
+    if ( IS_IPHONE_5() ) {
+        m_calibration = {0.88f, 0.675f, 1.78, 1.295238095238095};
+    } else {
+        m_calibration = {0.8f, 0.675f, (16.0f/11.0f), 1.295238095238095};
+    }
+    
+    // Create Visualization Layer
+    self.arView = [[ARView alloc] initWithSize:CGSizeMake(trackerImage.size.width,
+                                                          trackerImage.size.height)
+                                   calibration:m_calibration];
+    [self.view addSubview:self.arView];
+    [self.arView hide];
+    
+    // Save Visualization Layer Dimensions
+    m_targetViewWidth = self.arView.frame.size.width;
+    m_targetViewHeight = self.arView.frame.size.height;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -253,6 +271,12 @@
         if ( [self isTutorialPanelVisible] ) {
             [self togglePanels];
         }
+        
+        // Begin tracking the bullseye target
+        cv::Point2f matchPoint = m_detector->matchPoint(); // 1
+        self.arView.center = CGPointMake(m_calibration.xCorrection * matchPoint.x + m_targetViewWidth / 2.0f,
+                                         m_calibration.yCorrection * matchPoint.y + m_targetViewHeight / 2.0f);
+        [self.arView show];
     }
     
     // Tracking Failure
@@ -260,6 +284,9 @@
         if ( ![self isTutorialPanelVisible] ) {
             [self togglePanels];
         }
+        
+        // Stop tracking
+        [self.arView hide]; // 2
     }
 }
 

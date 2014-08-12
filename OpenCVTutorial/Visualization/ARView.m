@@ -134,11 +134,11 @@ static inline void drawTargetCircle(CGPoint center,
 #pragma mark -
 #pragma mark Display Controls
 - (void)show {
-    // TODO: Add code here
+    self.alpha = kAlphaShow;
 }
 
 - (void)hide {
-    // TODO: Add code here
+    self.alpha = kAlphaHide;
 }
 
 @end
