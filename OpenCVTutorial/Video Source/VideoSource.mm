@@ -10,7 +10,7 @@
 
 #pragma mark -
 #pragma mark VideoSource Class Extension
-@interface VideoSource ()
+@interface VideoSource () <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @end
 
@@ -42,8 +42,38 @@
 #pragma mark -
 #pragma mark Public Interface
 - (BOOL)startWithDevicePosition:(AVCaptureDevicePosition)devicePosition {
-    // TODO: Add code here
-    return FALSE;
+    // (1) Find camera device at the specific position
+    AVCaptureDevice * videoDevice = [self cameraWithPosition:devicePosition];
+    if ( !videoDevice ) {
+        NSLog(@"Could not initialize camera at position %d", devicePosition);
+        return FALSE;
+    }
+    
+    // (2) Obtain input port for camera device
+    NSError * error;
+    AVCaptureDeviceInput *videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    if ( !error ) {
+        [self setDeviceInput:videoInput];
+    } else {
+        NSLog(@"Could not open input port for device %@ (%@)", videoDevice, [error localizedDescription]);
+        return FALSE;
+    }
+    
+    // (3) Configure input port for captureSession
+    if ( [self.captureSession canAddInput:videoInput] ) {
+        [self.captureSession addInput:videoInput];
+    } else {
+        NSLog(@"Could not add input port to capture session %@", self.captureSession);
+        return FALSE;
+    }
+    
+    // (4) Configure output port for captureSession
+    [self addVideoDataOutput];
+    
+    // (5) Start captureSession running
+    [self.captureSession startRunning];
+    
+    return TRUE;
 }
 
 #pragma mark -
@@ -58,8 +88,25 @@
     return nil;
 }
 
-- (void)addVideoDataOutput {
-    // TODO: Add code here
+- (void) addVideoDataOutput {
+    // (1) Instantiate a new video data output object
+    AVCaptureVideoDataOutput * captureOutput = [[AVCaptureVideoDataOutput alloc] init];
+    captureOutput.alwaysDiscardsLateVideoFrames = YES;
+    
+    // (2) The sample buffer delegate requires a serial dispatch queue
+    dispatch_queue_t queue;
+    queue = dispatch_queue_create("com.raywenderlich.tutorials.opencv", DISPATCH_QUEUE_SERIAL);
+    [captureOutput setSampleBufferDelegate:self queue:queue];
+    dispatch_release(queue);
+    
+    // (3) Define the pixel format for the video data output
+    NSString * key = (NSString*)kCVPixelBufferPixelFormatTypeKey;
+    NSNumber * value = [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA];
+    NSDictionary * settings = @{key:value};
+    [captureOutput setVideoSettings:settings];
+    
+    // (4) Configure the output port on the captureSession property
+    [self.captureSession addOutput:captureOutput];
 }
 
 @end
