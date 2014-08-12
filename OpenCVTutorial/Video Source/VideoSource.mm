@@ -23,9 +23,20 @@
 - (id)init {
     self = [super init];
     if ( self ) {
-        // TODO: Add code here
+        AVCaptureSession * captureSession = [[AVCaptureSession alloc] init];
+        if ( [captureSession canSetSessionPreset:AVCaptureSessionPreset640x480] ) {
+            [captureSession setSessionPreset:AVCaptureSessionPreset640x480];
+            NSLog(@"Capturing video at 640x480");
+        } else {
+            NSLog(@"Could not configure AVCaptureSession video input");
+        }
+        _captureSession = captureSession;
     }
     return self;
+}
+
+- (void)dealloc {
+    [_captureSession stopRunning];
 }
 
 #pragma mark -
@@ -38,7 +49,12 @@
 #pragma mark -
 #pragma mark Helper Methods
 - (AVCaptureDevice*)cameraWithPosition:(AVCaptureDevicePosition)position {
-    // TODO: Add code here
+    NSArray * devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for ( AVCaptureDevice * device in devices ) {
+        if ( [device position] == position ) {
+            return device;
+        }
+    }
     return nil;
 }
 
