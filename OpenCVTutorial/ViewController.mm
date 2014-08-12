@@ -155,7 +155,8 @@
 #pragma mark -
 #pragma mark IBAction Methods
 - (IBAction)pressTrigger:(id)sender {
-    NSInteger ring = [self selectRandomRing];
+    CGPoint targetHit = [self.arView convertPoint:self.crosshairs.center fromView:self.view];
+    NSInteger ring = [self.arView selectBestRing:targetHit];
     switch ( ring ) {
         case 5: // Bullseye
             [self hitTargetWithPoints:kPOINTS_5];

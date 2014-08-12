@@ -10,10 +10,10 @@
 
 #import "AppDelegate.h"
 
-#define kDRAW_TARGET_DRAW_RINGS     1
+#define kDRAW_TARGET_DRAW_RINGS     0
 #define kDRAW_TARGET_BULLET_HOLES   1
 
-#define kColorBackground [UIColor darkGrayColor]
+#define kColorBackground [UIColor clearColor]
 
 #define kColorBulletHole [UIColor greenColor]
 
@@ -94,7 +94,7 @@ static inline void drawTargetCircle(CGPoint center,
         self.backgroundColor = kColorBackground;
         
         // Change this line to change which ring is highlighted
-        self.ringNumber = 1;
+        self.ringNumber = 5;
     }
     return self;
 }
@@ -126,7 +126,12 @@ static inline void drawTargetCircle(CGPoint center,
 - (int)selectBestRing:(CGPoint)point {
     int bestRing = 0;
     
-    // TODO: Add code here
+    CGFloat dist = distance(point, m_center, m_calibration);
+    if ( dist < kRadius5 )      { bestRing = 5; }
+    else if ( dist < kRadius4 ) { bestRing = 4; }
+    else if ( dist < kRadius3 ) { bestRing = 3; }
+    else if ( dist < kRadius2 ) { bestRing = 2; }
+    else if ( dist < kRadius1 ) { bestRing = 1; }
     
     return bestRing;
 }
