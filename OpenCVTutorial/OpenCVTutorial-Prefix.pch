@@ -11,7 +11,7 @@
 //
 // Set kUSE_TRACKING_HELPER to 1 if you require assistance with marker tracking, otherwise 0
 //
-#define kUSE_TRACKING_HELPER    0
+#define kUSE_TRACKING_HELPER    1
 
 #ifdef __cplusplus
 #include <opencv2/opencv.hpp>
