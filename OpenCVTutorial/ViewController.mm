@@ -201,6 +201,9 @@
     
     // (3) Update the score
     [self setScore:(self.score + points)];
+    
+    // (4) Run the explosion sprite
+    [self showExplosion];
 }
 
 - (void)missTarget {
