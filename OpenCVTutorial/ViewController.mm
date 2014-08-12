@@ -72,6 +72,17 @@
     
     // Activate Game Controls
     [self loadGameControls];
+    
+    // Configure Pattern Detector
+    UIImage * trackerImage = [UIImage imageNamed:@"target.jpg"];
+    m_detector = new PatternDetector([trackerImage toCVMat]); // 1
+    
+    // Start the Tracking Timer
+    m_trackingTimer = [NSTimer scheduledTimerWithTimeInterval:(1.0f/20.0f)
+                                                       target:self
+                                                     selector:@selector(updateTracking:)
+                                                     userInfo:nil
+                                                      repeats:YES]; // 2
 }
 
 // Supporting iOS5
@@ -214,7 +225,12 @@
 #pragma mark -
 #pragma mark Tracking Methods
 - (void)updateTracking:(NSTimer*)timer {
-    // TODO: Add code here
+    if ( m_detector->isTracking() ) {
+        NSLog(@"YES: %f", m_detector->matchValue());
+    }
+    else {
+        NSLog(@"NO: %f", m_detector->matchValue());
+    }
 }
 
 - (void)updateSample:(NSTimer*)timer {
@@ -251,6 +267,8 @@
         CGImageRelease(newImage);
         [[_weakSelf backgroundImageView] setImage:image];
     });
+    
+    m_detector->scanFrame(frame);
 }
 
 @end
