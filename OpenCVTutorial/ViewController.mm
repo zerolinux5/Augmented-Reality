@@ -83,6 +83,29 @@
                                                      selector:@selector(updateTracking:)
                                                      userInfo:nil
                                                       repeats:YES]; // 2
+    
+    // Start gameplay by hiding panels
+    [self.tutorialPanel setAlpha:0.0f];
+    [self.scorePanel setAlpha:0.0f];
+    [self.triggerPanel setAlpha:0.0f];
+    
+    // Define the completion blocks for transitions
+    __weak typeof(self) _weakSelf = self;
+    self.transitioningTrackerComplete = ^{
+        [_weakSelf setTransitioningTracker:NO];
+    };
+    self.transitioningTrackerCompleteResetScore = ^{
+        [_weakSelf setTransitioningTracker:NO];
+        [_weakSelf setScore:0];
+    };
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    // Pop-in the Tutorial Panel
+    self.transitioningTracker = YES;
+    [self.tutorialPanel slideIn:kAnimationDirectionFromTop completion:self.transitioningTrackerComplete];
+    
+    [super viewDidAppear:animated];
 }
 
 // Supporting iOS5
@@ -225,11 +248,18 @@
 #pragma mark -
 #pragma mark Tracking Methods
 - (void)updateTracking:(NSTimer*)timer {
+    // Tracking Success
     if ( m_detector->isTracking() ) {
-        NSLog(@"YES: %f", m_detector->matchValue());
+        if ( [self isTutorialPanelVisible] ) {
+            [self togglePanels];
+        }
     }
+    
+    // Tracking Failure
     else {
-        NSLog(@"NO: %f", m_detector->matchValue());
+        if ( ![self isTutorialPanelVisible] ) {
+            [self togglePanels];
+        }
     }
 }
 
@@ -242,7 +272,29 @@
 }
 
 - (void)togglePanels {
-    // TODO: Add code here
+    if ( !self.transitioningTracker ) {
+        self.transitioningTracker = YES;
+        if ( [self isTutorialPanelVisible] ) {
+            // Adjust panels
+            [self.tutorialPanel slideOut:kAnimationDirectionFromTop
+                              completion:self.transitioningTrackerComplete];
+            [self.scorePanel    slideIn:kAnimationDirectionFromTop
+                             completion:self.transitioningTrackerComplete];
+            [self.triggerPanel  slideIn:kAnimationDirectionFromBottom
+                             completion:self.transitioningTrackerComplete];
+            
+            // Play sound
+            AudioServicesPlaySystemSound(m_soundTracking);
+        } else {
+            // Adjust panels
+            [self.tutorialPanel slideIn:kAnimationDirectionFromTop
+                             completion:self.transitioningTrackerComplete];
+            [self.scorePanel    slideOut:kAnimationDirectionFromTop
+                              completion:self.transitioningTrackerCompleteResetScore];
+            [self.triggerPanel  slideOut:kAnimationDirectionFromBottom
+                              completion:self.transitioningTrackerComplete];
+        }
+    }
 }
 
 #pragma mark -
