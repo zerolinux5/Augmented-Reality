@@ -109,4 +109,30 @@
     [self.captureSession addOutput:captureOutput];
 }
 
+#pragma mark -
+#pragma mark Sample Buffer Delegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
+{
+    // (1) Convert CMSampleBufferRef to CVImageBufferRef
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    
+    // (2) Lock pixel buffer
+    CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+    
+    // (3) Construct VideoFrame struct
+    uint8_t *baseAddress = (uint8_t*)CVPixelBufferGetBaseAddress(imageBuffer);
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    size_t stride = CVPixelBufferGetBytesPerRow(imageBuffer);
+    VideoFrame frame = {width, height, stride, baseAddress};
+    
+    // (4) Dispatch VideoFrame to VideoSource delegate
+    [self.delegate frameReady:frame];
+    
+    // (5) Unlock pixel buffer
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+}
+
 @end
