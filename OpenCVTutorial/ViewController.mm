@@ -69,6 +69,9 @@
     self.videoSource = [[VideoSource alloc] init];
     self.videoSource.delegate = self;
     [self.videoSource startWithDevicePosition:AVCaptureDevicePositionBack];
+    
+    // Activate Game Controls
+    [self loadGameControls];
 }
 
 // Supporting iOS5
