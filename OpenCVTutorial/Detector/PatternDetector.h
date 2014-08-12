@@ -13,7 +13,37 @@
 
 class PatternDetector
 {
-    // TODO: Add code here
+#pragma mark -
+#pragma mark Public Interface
+public:
+    // (1) Constructor
+    PatternDetector(const cv::Mat& pattern);
+    
+    // (2) Scan the input video frame
+    void scanFrame(VideoFrame frame);
+    
+    // (3) Match APIs
+    const cv::Point& matchPoint();
+    float matchValue();
+    float matchThresholdValue();
+    
+    // (4) Tracking API
+    bool isTracking();
+    
+#pragma mark -
+#pragma mark Private Members
+private:
+    // (5) Reference Marker Images
+    cv::Mat m_patternImage;
+    cv::Mat m_patternImageGray;
+    cv::Mat m_patternImageGrayScaled;
+    
+    // (6) Supporting Members
+    cv::Point m_matchPoint;
+    int m_matchMethod;
+    float m_matchValue;
+    float m_matchThresholdValue;
+    float m_scaleFactor;
 };
 
 #endif /* defined(__OpenCVTutorial__PatternDetector__) */
